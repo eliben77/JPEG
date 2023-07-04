@@ -777,10 +777,17 @@ namespace jpge {
 		}
 		else if ((m_comp_h_samp[0] == 1) && (m_comp_v_samp[0] == 1))
 		{
-			for (int i = 0; i < m_mcus_per_row; i++)
-			{
-				load_block_8_8(i, 0, 0); code_block(0); load_block_8_8(i, 0, 1); code_block(1); load_block_8_8(i, 0, 2); code_block(2);
-			}
+            if (!direction){
+                for (int i = 0; i < m_mcus_per_row; i++){
+                    load_block_8_8(i, 0, 0); code_block(0); load_block_8_8(i, 0, 1); code_block(1); load_block_8_8(i, 0, 2); code_block(2);
+                }
+            }
+			else{
+                for (int i = m_mcus_per_row-1; i >=0 ; i--){
+                    load_block_8_8(i, 0, 0); code_block(0); load_block_8_8(i, 0, 1); code_block(1); load_block_8_8(i, 0, 2); code_block(2);
+                }
+            }
+            direction = !direction;
 		}
 		else if ((m_comp_h_samp[0] == 2) && (m_comp_v_samp[0] == 1))
 		{
@@ -907,6 +914,7 @@ namespace jpge {
 		if (((!pStream) || (width < 1) || (height < 1)) || ((src_channels != 1) && (src_channels != 3) && (src_channels != 4)) || (!comp_params.check())) return false;
 		m_pStream = pStream;
 		m_params = comp_params;
+        direction = 0;
 		return jpg_open(width, height, src_channels);
 	}
 
