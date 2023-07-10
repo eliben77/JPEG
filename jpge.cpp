@@ -29,13 +29,17 @@
 // v1.05, March 25, 2020: Added Apache 2.0 alternate license
 
 #include "jpge.h"
-
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include <ctype.h>
+#include <fstream>
 
 #define JPGE_MAX(a,b) (((a)>(b))?(a):(b))
 #define JPGE_MIN(a,b) (((a)<(b))?(a):(b))
+
+
 
 namespace jpge {
 
@@ -235,7 +239,7 @@ namespace jpge {
 			total--;
 		}
 	}
-
+    uint counter = 0;
 	// Generates an optimized offman table.
 	void jpeg_encoder::optimize_huffman_table(int table_num, int table_len)
 	{
@@ -630,29 +634,28 @@ namespace jpge {
 			q++;
 		}
 	}
+    int g = -1;
+    void jpeg_encoder::flush_output_buffer()
+    {
+        if (m_out_buf_left != JPGE_OUT_BUF_SIZE)
+            m_all_stream_writes_succeeded = m_all_stream_writes_succeeded && m_pStream->put_buf(m_out_buf, JPGE_OUT_BUF_SIZE - m_out_buf_left);
+        m_pOut_buf = m_out_buf;
+        m_out_buf_left = JPGE_OUT_BUF_SIZE;
+    }
 
-	void jpeg_encoder::flush_output_buffer()
-	{
-		if (m_out_buf_left != JPGE_OUT_BUF_SIZE)
-			m_all_stream_writes_succeeded = m_all_stream_writes_succeeded && m_pStream->put_buf(m_out_buf, JPGE_OUT_BUF_SIZE - m_out_buf_left);
-		m_pOut_buf = m_out_buf;
-		m_out_buf_left = JPGE_OUT_BUF_SIZE;
-	}
-
-	void jpeg_encoder::put_bits(uint bits, uint len)
-	{
-		m_bit_buffer |= ((uint32)bits << (24 - (m_bits_in += len)));
-		while (m_bits_in >= 8)
-		{
-			uint8 c;
+    void jpeg_encoder::put_bits(uint bits, uint len)
+    {
+        m_bit_buffer |= ((uint32)bits << (24 - (m_bits_in += len)));
+        while (m_bits_in >= 8)
+        {
+            uint8 c;
 #define JPGE_PUT_BYTE(c) { *m_pOut_buf++ = (c); if (--m_out_buf_left == 0) flush_output_buffer(); }
-			JPGE_PUT_BYTE(c = (uint8)((m_bit_buffer >> 16) & 0xFF));
-			if (c == 0xFF) JPGE_PUT_BYTE(0);
-			m_bit_buffer <<= 8;
-			m_bits_in -= 8;
-		}
-	}
-
+            JPGE_PUT_BYTE(c = (uint8)((m_bit_buffer >> 16) & 0xFF));
+            if (c == 0xFF) JPGE_PUT_BYTE(0);
+            m_bit_buffer <<= 8;
+            m_bits_in -= 8;
+        }
+    }
 	void jpeg_encoder::code_coefficients_pass_one(int component_num)
 	{
 		if (component_num >= 3) return; // just to shut up static analysis
@@ -755,7 +758,106 @@ namespace jpge {
 		if (run_len)
 			put_bits(codes[1][0], code_sizes[1][0]);
 	}
+    void jpeg_encoder::load_bitBuffer(uint bits, uint len, BitBuffer* buffer){
+        buffer->addBits(bits,len);
+    }
+    BitBuffer* jpeg_encoder::code_coefficients_pass_two2(int component_num)
+    {
+        auto* buffer = new BitBuffer;
+        int i, j, run_len, nbits, temp1, temp2;
+        int16* pSrc = m_coefficient_array;
+        uint* codes[2];
+        uint8* code_sizes[2];
 
+        if (component_num == 0)
+        {
+            codes[0] = m_huff_codes[0 + 0]; codes[1] = m_huff_codes[2 + 0];
+            code_sizes[0] = m_huff_code_sizes[0 + 0]; code_sizes[1] = m_huff_code_sizes[2 + 0];
+        }
+        else
+        {
+            codes[0] = m_huff_codes[0 + 1]; codes[1] = m_huff_codes[2 + 1];
+            code_sizes[0] = m_huff_code_sizes[0 + 1]; code_sizes[1] = m_huff_code_sizes[2 + 1];
+        }
+
+        temp1 = temp2 = pSrc[0] - m_last_dc_val[component_num];
+        m_last_dc_val[component_num] = pSrc[0];
+
+        if (temp1 < 0)
+        {
+            temp1 = -temp1; temp2--;
+        }
+
+        nbits = 0;
+        while (temp1)
+        {
+            nbits++; temp1 >>= 1;
+        }
+
+        load_bitBuffer(codes[0][nbits], code_sizes[0][nbits],buffer);
+        if (nbits) load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);
+
+        for (run_len = 0, i = 1; i < 64; i++)
+        {
+            if ((temp1 = m_coefficient_array[i]) == 0)
+                run_len++;
+            else
+            {
+                while (run_len >= 16)
+                {
+                    load_bitBuffer(codes[1][0xF0], code_sizes[1][0xF0],buffer);
+                    run_len -= 16;
+                }
+                if ((temp2 = temp1) < 0)
+                {
+                    temp1 = -temp1;
+                    temp2--;
+                }
+                nbits = 1;
+                while (temp1 >>= 1)
+                    nbits++;
+                j = (run_len << 4) + nbits;
+                load_bitBuffer(codes[1][j], code_sizes[1][j],buffer);
+                load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);
+                run_len = 0;
+            }
+        }
+        if (run_len)
+            load_bitBuffer(codes[1][0], code_sizes[1][0],buffer);
+        return buffer;
+    }
+    BitBuffer* jpeg_encoder::code_block2(int component_num)
+    {
+        DCT2D(m_sample_array);
+        load_quantized_coefficients(component_num);
+        if (m_pass_num == 1)
+            code_coefficients_pass_one(component_num);
+        else
+            return code_coefficients_pass_two2(component_num);
+        return nullptr;
+    }
+    void jpeg_encoder::moveBitsFromBuffer(BitBuffer* bitBuffer){
+        const uint word_size = 32;  // Word size in bits
+        const uint remainder_size = bitBuffer->get_sum_bits_in() % 32;
+        // Process complete words
+//        printf("have %d words and %d remainder\n",bitBuffer->get_sum_bits_in() / 32,remainder_size);
+        uint c = 0;
+        while (bitBuffer->hasBits(word_size))
+        {
+            c++;
+            uint32_t word = bitBuffer->getBits(word_size);
+            put_bits(word, word_size);
+        }
+//        printf("put %d words\n",c);
+        // Process remaining bits
+        if (remainder_size > 0)
+        {
+            c=remainder_size;
+            uint32_t remainder = bitBuffer->getBits((int)remainder_size);
+            put_bits(remainder, remainder_size);
+//            printf("put %d bits in len of %d\n",remainder,c);
+        }
+    }
 	void jpeg_encoder::code_block(int component_num)
 	{
 		DCT2D(m_sample_array);
@@ -765,9 +867,9 @@ namespace jpge {
 		else
 			code_coefficients_pass_two(component_num);
 	}
-
 	void jpeg_encoder::process_mcu_row()
 	{
+        g++;
 		if (m_num_components == 1)
 		{
 			for (int i = 0; i < m_mcus_per_row; i++)
@@ -779,12 +881,29 @@ namespace jpge {
 		{
             if (!direction){
                 for (int i = 0; i < m_mcus_per_row; i++){
-                    load_block_8_8(i, 0, 0); code_block(0); load_block_8_8(i, 0, 1); code_block(1); load_block_8_8(i, 0, 2); code_block(2);
+//                    printf("proccess block (%d,%i)\n",g,i);
+                    load_block_8_8(i, 0, 0);code_block(0);load_block_8_8(i, 0, 1);
+                    code_block(1); load_block_8_8(i, 0, 2); code_block(2);
                 }
             }
 			else{
                 for (int i = m_mcus_per_row-1; i >=0 ; i--){
-                    load_block_8_8(i, 0, 0); code_block(0); load_block_8_8(i, 0, 1); code_block(1); load_block_8_8(i, 0, 2); code_block(2);
+//                    printf("proccess block (%d,%i)\n",g,i);
+                    load_block_8_8(i, 0, 0);
+                    BitBuffer* b0= code_block2(0);
+                    load_block_8_8(i, 0, 1);
+                    BitBuffer* b1= code_block2(1);
+                    load_block_8_8(i, 0, 2);
+                    BitBuffer* b2= code_block2(2);
+                    stack.push(b2);
+                    stack.push(b1);
+                    stack.push(b0);
+                }
+                while(!stack.empty()){
+                    BitBuffer* buffer= stack.top();
+                    moveBitsFromBuffer(buffer);
+                    stack.pop();
+                    delete buffer;
                 }
             }
             direction = !direction;
@@ -820,6 +939,7 @@ namespace jpge {
 
 	bool jpeg_encoder::terminate_pass_two()
 	{
+        if (direction) direction = 0;
 		put_bits(0x7F, 7);
 		flush_output_buffer();
 		emit_marker(M_EOI);
@@ -1012,12 +1132,12 @@ namespace jpge {
 				if (!dst_image.process_scanline(pBuf))
 					return false;
 			}
+            dst_image.direction = 0;
 			if (!dst_image.process_scanline(NULL))
 				return false;
 		}
 
 		dst_image.deinit();
-
 		return dst_stream.close();
 	}
 
@@ -1076,7 +1196,6 @@ namespace jpge {
 		}
 
 		dst_image.deinit();
-
 		buf_size = dst_stream.get_size();
 		return true;
 	}

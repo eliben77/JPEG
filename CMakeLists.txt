@@ -51,7 +51,7 @@ endif()
 set(BASISU_SRC_LIST ${COMMON_SRC_LIST} 
 	jpgd.cpp
 	jpge.cpp
-	tga2jpg.cpp
+    tga2jpg.cpp
 	timer.cpp
 	)
 

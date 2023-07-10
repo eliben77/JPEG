@@ -3,15 +3,78 @@
 // Alex Evans: Added RGBA support, linear memory allocator.
 #ifndef JPEG_ENCODER_H
 #define JPEG_ENCODER_H
-
+#include <stack>
+#include <vector>
+#include <iostream>
+using namespace std;
 namespace jpge
 {
+
+
 	typedef unsigned char  uint8;
 	typedef signed short   int16;
 	typedef signed int     int32;
 	typedef unsigned short uint16;
 	typedef unsigned int   uint32;
 	typedef unsigned int   uint;
+
+    struct Node {
+        uint buffer[64];
+        int size = 0;
+    };
+    class BitBuffer {
+    private:
+        std::vector<uint> m_buffer; // The buffer to hold the bits
+        uint sum_bits_in;           // Number of bits currently in the buffer
+
+    public:
+        BitBuffer() : sum_bits_in(0) {}
+        uint get_sum_bits_in(){
+            return this->sum_bits_in;
+        }
+        // Function to add bits to the buffer
+        void addBits(uint bits, uint num_bits) {
+            uint current_index = sum_bits_in / 32;
+            uint bit_offset = sum_bits_in % 32;
+
+            if (bit_offset + num_bits > 32) {
+                uint32 remaining_bits = num_bits - (32 - bit_offset);
+
+                m_buffer.resize(current_index + 2); // Increase the buffer size if necessary
+                m_buffer[current_index] |= (bits >> remaining_bits);
+                m_buffer[current_index + 1] = (bits << (32 - remaining_bits));
+            } else {
+                m_buffer.resize(current_index + 1); // Increase the buffer size if necessary
+                m_buffer[current_index] |= (bits << (32 - bit_offset - num_bits));
+            }
+
+            sum_bits_in += num_bits;
+        }
+
+        // Function to check if the buffer has at least n bits available
+        bool hasBits(uint num_bits) const {
+            return sum_bits_in >= num_bits;
+        }
+
+        // Function to retrieve n bits from the buffer
+        uint32 getBits(int num_bits) {
+            uint32 result = 0;
+
+            uint current_index = sum_bits_in / 32;
+            uint bit_offset = sum_bits_in % 32;
+
+            if (bit_offset + num_bits > 32) {
+                uint32 bits1 = m_buffer[current_index] >> (32 - bit_offset);
+                uint32 bits2 = m_buffer[current_index + 1] << (bit_offset + num_bits - 32);
+                result = (bits1 | bits2);
+            } else {
+                result = (m_buffer[current_index] >> (32 - bit_offset - num_bits));
+            }
+
+            sum_bits_in -= num_bits;
+            return result;
+        }
+    };
 
 	// JPEG chroma subsampling factors. Y_ONLY (grayscale images) and H2V2 (color images) are the most common.
 	enum subsampling_t { Y_ONLY = 0, H1V1 = 1, H2V1 = 2, H2V2 = 3 };
@@ -97,7 +160,8 @@ namespace jpge
 		// Returns false on out of memory or if a stream write fails.
 		bool process_scanline(const void* pScanline);
 
-	private:
+        uint8 direction;
+    private:
 		jpeg_encoder(const jpeg_encoder&);
 		jpeg_encoder& operator =(const jpeg_encoder&);
 
@@ -106,8 +170,7 @@ namespace jpge
 		output_stream* m_pStream;
 		params m_params;
 		uint8 m_num_components;
-        uint8 direction;
-		uint8 m_comp_h_samp[3], m_comp_v_samp[3];
+        uint8 m_comp_h_samp[3], m_comp_v_samp[3];
 		int m_image_x, m_image_y, m_image_bpp, m_image_bpl;
 		int m_image_x_mcu, m_image_y_mcu;
 		int m_image_bpl_xlt, m_image_bpl_mcu;
@@ -126,6 +189,7 @@ namespace jpge
 		int m_last_dc_val[3];
 		enum { JPGE_OUT_BUF_SIZE = 2048 };
 		uint8 m_out_buf[JPGE_OUT_BUF_SIZE];
+        std::stack<BitBuffer*> stack;
 		uint8* m_pOut_buf;
 		uint m_out_buf_left;
 		uint32 m_bit_buffer;
@@ -159,6 +223,10 @@ namespace jpge
 		void put_bits(uint bits, uint len);
 		void code_coefficients_pass_one(int component_num);
 		void code_coefficients_pass_two(int component_num);
+        BitBuffer* code_coefficients_pass_two2(int component_num);
+        void load_bitBuffer(uint bits, uint len, BitBuffer* buffer);
+        void moveBitsFromBuffer(BitBuffer* bitBuffer);
+        BitBuffer* code_block2(int component_num);
 		void code_block(int component_num);
 		void process_mcu_row();
 		bool terminate_pass_one();
