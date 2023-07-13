@@ -761,7 +761,7 @@ namespace jpge {
     void jpeg_encoder::load_bitBuffer(uint bits, uint len, BitBuffer* buffer){
         buffer->addBits(bits,len);
     }
-    BitBuffer* jpeg_encoder::code_coefficients_pass_two2(int component_num)
+    BitBuffer* jpeg_encoder::code_coefficients_pass_two_back(int component_num)
     {
         auto* buffer = new BitBuffer;
         int i, j, run_len, nbits, temp1, temp2;
@@ -826,21 +826,20 @@ namespace jpge {
             load_bitBuffer(codes[1][0], code_sizes[1][0],buffer);
         return buffer;
     }
-    BitBuffer* jpeg_encoder::code_block2(int component_num)
+    BitBuffer* jpeg_encoder::code_block_back(int component_num)
     {
         DCT2D(m_sample_array);
         load_quantized_coefficients(component_num);
         if (m_pass_num == 1)
             code_coefficients_pass_one(component_num);
         else
-            return code_coefficients_pass_two2(component_num);
+            return code_coefficients_pass_two_back(component_num);
         return nullptr;
     }
     void jpeg_encoder::moveBitsFromBuffer(BitBuffer* bitBuffer){
         const uint word_size = 32;  // Word size in bits
         const uint remainder_size = bitBuffer->get_sum_bits_in() % 32;
         // Process complete words
-//        printf("have %d words and %d remainder\n",bitBuffer->get_sum_bits_in() / 32,remainder_size);
         uint c = 0;
         while (bitBuffer->hasBits(word_size))
         {
@@ -848,14 +847,12 @@ namespace jpge {
             uint32_t word = bitBuffer->getBits(word_size);
             put_bits(word, word_size);
         }
-//        printf("put %d words\n",c);
         // Process remaining bits
         if (remainder_size > 0)
         {
             c=remainder_size;
             uint32_t remainder = bitBuffer->getBits((int)remainder_size);
             put_bits(remainder, remainder_size);
-//            printf("put %d bits in len of %d\n",remainder,c);
         }
     }
 	void jpeg_encoder::code_block(int component_num)
@@ -881,24 +878,23 @@ namespace jpge {
 		{
             if (!direction){
                 for (int i = 0; i < m_mcus_per_row; i++){
-//                    printf("proccess block (%d,%i)\n",g,i);
                     load_block_8_8(i, 0, 0);code_block(0);load_block_8_8(i, 0, 1);
                     code_block(1); load_block_8_8(i, 0, 2); code_block(2);
                 }
             }
 			else{
                 for (int i = m_mcus_per_row-1; i >=0 ; i--){
-//                    printf("proccess block (%d,%i)\n",g,i);
                     load_block_8_8(i, 0, 0);
-                    BitBuffer* b0= code_block2(0);
+                    BitBuffer* b0= code_block_back(0);
                     load_block_8_8(i, 0, 1);
-                    BitBuffer* b1= code_block2(1);
+                    BitBuffer* b1= code_block_back(1);
                     load_block_8_8(i, 0, 2);
-                    BitBuffer* b2= code_block2(2);
+                    BitBuffer* b2= code_block_back(2);
                     stack.push(b2);
                     stack.push(b1);
                     stack.push(b0);
                 }
+                //put bits by stream order
                 while(!stack.empty()){
                     BitBuffer* buffer= stack.top();
                     moveBitsFromBuffer(buffer);
@@ -906,6 +902,7 @@ namespace jpge {
                     delete buffer;
                 }
             }
+            // replace direction
             direction = !direction;
 		}
 		else if ((m_comp_h_samp[0] == 2) && (m_comp_v_samp[0] == 1))
@@ -1132,7 +1129,7 @@ namespace jpge {
 				if (!dst_image.process_scanline(pBuf))
 					return false;
 			}
-            dst_image.direction = 0;
+//            dst_image.direction = 0;
 			if (!dst_image.process_scanline(NULL))
 				return false;
 		}

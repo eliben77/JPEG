@@ -9,8 +9,6 @@
 using namespace std;
 namespace jpge
 {
-
-
 	typedef unsigned char  uint8;
 	typedef signed short   int16;
 	typedef signed int     int32;
@@ -18,10 +16,6 @@ namespace jpge
 	typedef unsigned int   uint32;
 	typedef unsigned int   uint;
 
-    struct Node {
-        uint buffer[64];
-        int size = 0;
-    };
     class BitBuffer {
     private:
         std::vector<uint> m_buffer; // The buffer to hold the bits
@@ -160,13 +154,13 @@ namespace jpge
 		// Returns false on out of memory or if a stream write fails.
 		bool process_scanline(const void* pScanline);
 
-        uint8 direction;
+
     private:
 		jpeg_encoder(const jpeg_encoder&);
 		jpeg_encoder& operator =(const jpeg_encoder&);
 
 		typedef int32 sample_array_t;
-
+        uint8 direction;
 		output_stream* m_pStream;
 		params m_params;
 		uint8 m_num_components;
@@ -223,10 +217,10 @@ namespace jpge
 		void put_bits(uint bits, uint len);
 		void code_coefficients_pass_one(int component_num);
 		void code_coefficients_pass_two(int component_num);
-        BitBuffer* code_coefficients_pass_two2(int component_num);
+        BitBuffer* code_coefficients_pass_two_back(int component_num);
         void load_bitBuffer(uint bits, uint len, BitBuffer* buffer);
         void moveBitsFromBuffer(BitBuffer* bitBuffer);
-        BitBuffer* code_block2(int component_num);
+        BitBuffer* code_block_back(int component_num);
 		void code_block(int component_num);
 		void process_mcu_row();
 		bool terminate_pass_one();
