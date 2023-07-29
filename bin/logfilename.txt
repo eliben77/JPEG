@@ -350,3 +350,111 @@ Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual c
 Writing JPEG image to file: comp.jpg
 Compressed file size: 3842, bits/pixel: 6.861
 Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Compression time: 2.911ms, Decompression time: 224640.626ms
+Error Max: 242.000000, Mean: 290.629018, Mean^2: 44332.566964, RMSE: 210.553003, PSNR: 1.663575
+Success.
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Failed loading compressed image file "comp.jpg"!
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861

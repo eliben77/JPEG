@@ -523,9 +523,10 @@ namespace jpgd {
 	// Decodes a Huffman encoded symbol.
 	inline int jpeg_decoder::huff_decode(huff_tables* pH)
 	{
-		if (!pH)
-			stop_decoding(JPGD_DECODE_ERROR);
-
+		if (!pH){
+            printf("A8\n");
+            stop_decoding(JPGD_DECODE_ERROR);
+        }
 		int symbol;
 		// Check first 8-bits: do we have a complete symbol?
 		if ((symbol = pH->look_up[m_bit_buf >> 24]) < 0)
@@ -537,8 +538,10 @@ namespace jpgd {
 				unsigned int idx = -(int)(symbol + ((m_bit_buf >> ofs) & 1));
 
 				// This should never happen, but to be safe I'm turning these asserts into a run-time check.
-				if ((idx >= JPGD_HUFF_TREE_MAX_LENGTH) || (ofs < 0))
-					stop_decoding(JPGD_DECODE_ERROR);
+				if ((idx >= JPGD_HUFF_TREE_MAX_LENGTH) || (ofs < 0)){
+                    printf("A7\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				symbol = pH->tree[idx];
 				ofs--;
@@ -560,8 +563,10 @@ namespace jpgd {
 	{
 		int symbol;
 
-		if (!pH)
-			stop_decoding(JPGD_DECODE_ERROR);
+		if (!pH){
+            printf("A6\n");
+            stop_decoding(JPGD_DECODE_ERROR);
+        }
 
 		// Check first 8-bits: do we have a complete symbol?
 		if ((symbol = pH->look_up2[m_bit_buf >> 24]) < 0)
@@ -573,8 +578,10 @@ namespace jpgd {
 				unsigned int idx = -(int)(symbol + ((m_bit_buf >> ofs) & 1));
 
 				// This should never happen, but to be safe I'm turning these asserts into a run-time check.
-				if ((idx >= JPGD_HUFF_TREE_MAX_LENGTH) || (ofs < 0))
-					stop_decoding(JPGD_DECODE_ERROR);
+				if ((idx >= JPGD_HUFF_TREE_MAX_LENGTH) || (ofs < 0)){
+                    printf("A5\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				symbol = pH->tree[idx];
 				ofs--;
@@ -586,8 +593,10 @@ namespace jpgd {
 		}
 		else
 		{
+            int sym = symbol;
 			if (symbol & 0x8000)
 			{
+                //1000
 				//get_bits_no_markers((symbol >> 8) & 31);
 				assert(((symbol >> 8) & 31) <= 15);
 				get_bits_no_markers((symbol >> 8) & 15);
@@ -609,6 +618,8 @@ namespace jpgd {
 			}
 
 			symbol &= 0xFF;
+            if (symbol == 0)
+                printf("symbol:%d, f_symbol:%d\n",symbol,sym);
 		}
 
 		return symbol;
@@ -634,10 +645,53 @@ namespace jpgd {
 		m_pMem_blocks = nullptr;
 	}
 
+// Function to convert enum values to string representations.
+    const char* jpgd_status_to_string(enum jpgd_status status) {
+        switch (status) {
+            case JPGD_SUCCESS: return "JPGD_SUCCESS";
+            case JPGD_FAILED: return "JPGD_FAILED";
+            case JPGD_DONE: return "JPGD_DONE";
+            case JPGD_BAD_DHT_COUNTS: return "JPGD_BAD_DHT_COUNTS";
+            case JPGD_BAD_DHT_INDEX: return "JPGD_BAD_DHT_INDEX";
+            case JPGD_BAD_DQT_MARKER: return "JPGD_BAD_DQT_TABLE";
+          case JPGD_BAD_PRECISION: return "JPGD_BAD_PRECISION";
+          case JPGD_BAD_HEIGHT: return "JPGD_BAD_HEIGHT";
+          case JPGD_BAD_WIDTH: return "JPGD_BAD_WIDTH";
+          case JPGD_TOO_MANY_COMPONENTS: return "JPGD_TOO_MANY_COMPONENTS";
+          case JPGD_BAD_SOF_LENGTH: return "JPGD_BAD_SOF_LENGTH";
+          case JPGD_BAD_VARIABLE_MARKER: return "JPGD_BAD_VARIABLE_MARKER";
+          case JPGD_BAD_DRI_LENGTH: return "JPGD_BAD_DRI_LENGTH";
+          case JPGD_BAD_SOS_LENGTH: return "JPGD_BAD_SOS_LENGTH";
+          case JPGD_BAD_SOS_COMP_ID: return "JPGD_BAD_SOS_COMP_ID";
+          case JPGD_W_EXTRA_BYTES_BEFORE_MARKER: return "JPGD_W_EXTRA_BYTES_BEFORE_MARKER";
+          case JPGD_NO_ARITHMITIC_SUPPORT: return "JPGD_NO_ARITHMITIC_SUPPORT";
+          case JPGD_UNEXPECTED_MARKER: return "JPGD_UNEXPECTED_MARKER";
+          case JPGD_NOT_JPEG: return "JPGD_NOT_JPEG";
+          case JPGD_UNSUPPORTED_MARKER: return "JPGD_UNSUPPORTED_MARKER";
+          case JPGD_BAD_DQT_LENGTH: return "JPGD_BAD_DQT_LENGTH";
+          case JPGD_TOO_MANY_BLOCKS: return "JPGD_TOO_MANY_BLOCKS";
+        case JPGD_UNDEFINED_QUANT_TABLE: return "JPGD_UNDEFINED_QUANT_TABLE";
+        case JPGD_UNDEFINED_HUFF_TABLE: return "JPGD_UNDEFINED_HUFF_TABLE";
+        case JPGD_NOT_SINGLE_SCAN: return "JPGD_NOT_SINGLE_SCAN";
+        case JPGD_UNSUPPORTED_COLORSPACE: return "JPGD_UNSUPPORTED_COLORSPACE";
+        case JPGD_UNSUPPORTED_SAMP_FACTORS: return "JPGD_UNSUPPORTED_SAMP_FACTORS";
+        case JPGD_DECODE_ERROR: return "JPGD_DECODE_ERROR";
+        case JPGD_BAD_RESTART_MARKER: return "JPGD_BAD_RESTART_MARKER";
+        case JPGD_BAD_SOS_SPECTRAL: return "JPGD_BAD_SOS_SPECTRAL";
+        case JPGD_BAD_SOS_SUCCESSIVE: return "JPGD_BAD_SOS_SUCCESSIVE";
+        case JPGD_STREAM_READ: return "JPGD_STREAM_READ";
+        case JPGD_NOTENOUGHMEM: return "JPGD_NOTENOUGHMEM";
+        case JPGD_TOO_MANY_SCANS: return "JPGD_TOO_MANY_SCANS";
+                // Add more cases for the rest of the enum values.
+
+            default: return "Unknown";
+        }
+    }
 	// This method handles all errors. It will never return.
 	// It could easily be changed to use C++ exceptions.
 	JPGD_NORETURN void jpeg_decoder::stop_decoding(jpgd_status status)
 	{
+        printf("status:%s\n",jpgd_status_to_string(status));
 		m_error_code = status;
 		free_all_blocks();
 		longjmp(m_jmp_state, status);
@@ -885,8 +939,10 @@ namespace jpgd {
 				stop_decoding(JPGD_UNSUPPORTED_SAMP_FACTORS);
 
 			m_comp_quant[i] = get_bits(8);
-			if (m_comp_quant[i] >= JPGD_MAX_QUANT_TABLES)
-				stop_decoding(JPGD_DECODE_ERROR);
+			if (m_comp_quant[i] >= JPGD_MAX_QUANT_TABLES){
+                printf("A4\n");
+                stop_decoding(JPGD_DECODE_ERROR);
+            }
 		}
 	}
 
@@ -897,8 +953,10 @@ namespace jpgd {
 
 		num_left = get_bits(16);
 
-		if (num_left < 2)
-			stop_decoding(JPGD_BAD_VARIABLE_MARKER);
+		if (num_left < 2){
+            stop_decoding(JPGD_BAD_VARIABLE_MARKER);
+        }
+
 
 		num_left -= 2;
 
@@ -948,19 +1006,26 @@ namespace jpgd {
 			if (ci >= m_comps_in_frame)
 				stop_decoding(JPGD_BAD_SOS_COMP_ID);
 
-			if (ci >= JPGD_MAX_COMPONENTS)
-				stop_decoding(JPGD_DECODE_ERROR);
+			if (ci >= JPGD_MAX_COMPONENTS){
+                printf("A3\n");
+                stop_decoding(JPGD_DECODE_ERROR);
+            }
 
 			m_comp_list[i] = ci;
 
 			m_comp_dc_tab[ci] = (c >> 4) & 15;
 			m_comp_ac_tab[ci] = (c & 15) + (JPGD_MAX_HUFF_TABLES >> 1);
 
-			if (m_comp_dc_tab[ci] >= JPGD_MAX_HUFF_TABLES)
-				stop_decoding(JPGD_DECODE_ERROR);
+			if (m_comp_dc_tab[ci] >= JPGD_MAX_HUFF_TABLES){
+                printf("A1\n");
+                stop_decoding(JPGD_DECODE_ERROR);
+            }
 
-			if (m_comp_ac_tab[ci] >= JPGD_MAX_HUFF_TABLES)
-				stop_decoding(JPGD_DECODE_ERROR);
+			if (m_comp_ac_tab[ci] >= JPGD_MAX_HUFF_TABLES){
+                printf("A2\n");
+                stop_decoding(JPGD_DECODE_ERROR);
+            }
+
 		}
 
 		m_spectral_start = get_bits(8);
@@ -1336,8 +1401,10 @@ namespace jpgd {
 	void jpeg_decoder::transform_mcu(int mcu_row)
 	{
 		jpgd_block_coeff_t* pSrc_ptr = m_pMCU_coefficients;
-		if (mcu_row * m_blocks_per_mcu >= m_max_blocks_per_row)
-			stop_decoding(JPGD_DECODE_ERROR);
+		if (mcu_row * m_blocks_per_mcu >= m_max_blocks_per_row){
+            printf("A35\n");
+            stop_decoding(JPGD_DECODE_ERROR);
+        }
 
 		uint8* pDst_ptr = m_pSample_buf + mcu_row * m_blocks_per_mcu * 64;
 
@@ -1364,13 +1431,16 @@ namespace jpgd {
 
 		for (mcu_row = 0; mcu_row < m_mcus_per_row; mcu_row++)
 		{
+            printf("m_mcus_per_row:%d\n",m_mcus_per_row);
 			int block_x_mcu_ofs = 0, block_y_mcu_ofs = 0;
 
 			for (mcu_block = 0; mcu_block < m_blocks_per_mcu; mcu_block++)
 			{
 				component_id = m_mcu_org[mcu_block];
-				if (m_comp_quant[component_id] >= JPGD_MAX_QUANT_TABLES)
-					stop_decoding(JPGD_DECODE_ERROR);
+				if (m_comp_quant[component_id] >= JPGD_MAX_QUANT_TABLES){
+                    printf("A34\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				q = m_quant[m_comp_quant[component_id]];
 
@@ -1479,7 +1549,6 @@ namespace jpgd {
 	void jpeg_decoder::decode_next_row()
 	{
 		int row_block = 0;
-
 		for (int mcu_row = 0; mcu_row < m_mcus_per_row; mcu_row++)
 		{
 			if ((m_restart_interval) && (m_restarts_left == 0))
@@ -1489,15 +1558,19 @@ namespace jpgd {
 			for (int mcu_block = 0; mcu_block < m_blocks_per_mcu; mcu_block++, p += 64)
 			{
 				int component_id = m_mcu_org[mcu_block];
-				if (m_comp_quant[component_id] >= JPGD_MAX_QUANT_TABLES)
-					stop_decoding(JPGD_DECODE_ERROR);
+				if (m_comp_quant[component_id] >= JPGD_MAX_QUANT_TABLES){
+                    printf("A33\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				jpgd_quant_t* q = m_quant[m_comp_quant[component_id]];
 
 				int r, s;
 				s = huff_decode(m_pHuff_tabs[m_comp_dc_tab[component_id]], r);
-				if (s >= 16)
-					stop_decoding(JPGD_DECODE_ERROR);
+				if (s >= 16){
+                    printf("A32\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				s = JPGD_HUFF_EXTEND(r, s);
 
@@ -1513,17 +1586,21 @@ namespace jpgd {
 				for (k = 1; k < 64; k++)
 				{
 					int extra_bits;
+                    char buffer[33];
 					s = huff_decode(pH, extra_bits);
-
-					r = s >> 4;
-					s &= 15;
+                    itoa(s, buffer, 2);
+                    printf("s:%s\n",buffer);
+					r = s >> 4;//4 left bits
+					s &= 15; //4 right bits
 
 					if (s)
 					{
 						if (r)
 						{
-							if ((k + r) > 63)
-								stop_decoding(JPGD_DECODE_ERROR);
+							if ((k + r) > 63){
+                                printf("A31\n");
+                                stop_decoding(JPGD_DECODE_ERROR);
+                            }
 
 							if (k < prev_num_set)
 							{
@@ -1538,8 +1615,10 @@ namespace jpgd {
 
 						s = JPGD_HUFF_EXTEND(extra_bits, s);
 
-						if (k >= 64)
-							stop_decoding(JPGD_DECODE_ERROR);
+						if (k >= 64){
+                            printf("A30\n");
+                            stop_decoding(JPGD_DECODE_ERROR);
+                        }
 
 						p[g_ZAG[k]] = static_cast<jpgd_block_coeff_t>(dequantize_ac(s, q[k])); //s * q[k];
 					}
@@ -1547,8 +1626,10 @@ namespace jpgd {
 					{
 						if (r == 15)
 						{
-							if ((k + 16) > 64)
-								stop_decoding(JPGD_DECODE_ERROR);
+							if ((k + 16) > 64){
+                                printf("A29\n");
+                                stop_decoding(JPGD_DECODE_ERROR);
+                            }
 
 							if (k < prev_num_set)
 							{
@@ -1556,19 +1637,25 @@ namespace jpgd {
 								int kt = k;
 								while (n--)
 								{
-									if (kt > 63)
-										stop_decoding(JPGD_DECODE_ERROR);
+									if (kt > 63){
+                                        printf("A28\n");
+                                        stop_decoding(JPGD_DECODE_ERROR);
+                                    }
 									p[g_ZAG[kt++]] = 0;
 								}
 							}
 
 							k += 16 - 1; // - 1 because the loop counter is k
 
-							if (p[g_ZAG[k & 63]] != 0)
-								stop_decoding(JPGD_DECODE_ERROR);
+							if (p[g_ZAG[k & 63]] != 0){
+                                printf("A27\n");
+                               stop_decoding(JPGD_DECODE_ERROR);
+                            }
 						}
-						else
-							break;
+						else{
+                            printf("r:%d,s:%d.\tend block %d!\n",r,s,mcu_row);
+                            break;
+                        }
 					}
 				}
 
@@ -2124,8 +2211,11 @@ namespace jpgd {
 
 	int jpeg_decoder::decode_next_mcu_row()
 	{
-		if (::setjmp(m_jmp_state))
-			return JPGD_FAILED;
+		if (::setjmp(m_jmp_state)){
+            printf("E\n");
+            return JPGD_FAILED;
+        }
+
 
 		const bool chroma_y_filtering = ((m_flags & cFlagBoxChromaFiltering) == 0) && ((m_scan_type == JPGD_YH2V2) || (m_scan_type == JPGD_YH1V2));
 		if (chroma_y_filtering)
@@ -2150,11 +2240,17 @@ namespace jpgd {
 
 	int jpeg_decoder::decode(const void** pScan_line, uint* pScan_line_len)
 	{
-		if ((m_error_code) || (!m_ready_flag))
-			return JPGD_FAILED;
+		if ((m_error_code) || (!m_ready_flag)){
+            printf("A\n");
+            return JPGD_FAILED;
+        }
 
-		if (m_total_lines_left == 0)
-			return JPGD_DONE;
+
+		if (m_total_lines_left == 0){
+            printf("B\n");
+            return JPGD_DONE;
+        }
+
 
 		const bool chroma_y_filtering = ((m_flags & cFlagBoxChromaFiltering) == 0) && ((m_scan_type == JPGD_YH2V2) || (m_scan_type == JPGD_YH1V2));
 
@@ -2178,8 +2274,11 @@ namespace jpgd {
 		if (get_another_mcu_row)
 		{
 			int status = decode_next_mcu_row();
-			if (status != 0)
-				return status;
+			if (status != 0){
+                printf("C\n");
+                return status;
+            }
+
 		}
 
 		switch (m_scan_type)
@@ -2290,8 +2389,10 @@ namespace jpgd {
 		{
 			for (i = 1; i <= m_huff_num[index][l]; i++)
 			{
-				if (p >= 257)
-					stop_decoding(JPGD_DECODE_ERROR);
+				if (p >= 257){
+                    printf("A25\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 				huffsize[p++] = static_cast<uint8>(l);
 			}
 		}
@@ -2309,8 +2410,10 @@ namespace jpgd {
 		{
 			while (huffsize[p] == si)
 			{
-				if (p >= 257)
-					stop_decoding(JPGD_DECODE_ERROR);
+				if (p >= 257){
+                    printf("A24\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 				huffcode[p++] = code;
 				code++;
 			}
@@ -2344,8 +2447,10 @@ namespace jpgd {
 
 				for (l = 1 << (8 - code_size); l > 0; l--)
 				{
-					if (code >= 256)
-						stop_decoding(JPGD_DECODE_ERROR);
+					if (code >= 256){
+                        printf("A23\n");
+                        stop_decoding(JPGD_DECODE_ERROR);
+                    }
 
 					pH->look_up[code] = i;
 
@@ -2362,8 +2467,10 @@ namespace jpgd {
 							has_extrabits = true;
 							extra_bits = ((1 << num_extra_bits) - 1) & (code >> (8 - total_codesize));
 
-							if (extra_bits > 0x7FFF)
-								stop_decoding(JPGD_DECODE_ERROR);
+							if (extra_bits > 0x7FFF){
+                                printf("A22\n");
+                                stop_decoding(JPGD_DECODE_ERROR);
+                            }
 
 							bits_to_fetch += num_extra_bits;
 						}
@@ -2400,8 +2507,10 @@ namespace jpgd {
 
 					unsigned int idx = -currententry - 1;
 
-					if (idx >= JPGD_HUFF_TREE_MAX_LENGTH)
-						stop_decoding(JPGD_DECODE_ERROR);
+					if (idx >= JPGD_HUFF_TREE_MAX_LENGTH){
+                        printf("A21\n");
+                        stop_decoding(JPGD_DECODE_ERROR);
+                    }
 
 					if (pH->tree[idx] == 0)
 					{
@@ -2423,7 +2532,10 @@ namespace jpgd {
 					currententry--;
 
 				if ((-currententry - 1) >= JPGD_HUFF_TREE_MAX_LENGTH)
-					stop_decoding(JPGD_DECODE_ERROR);
+                {
+                    printf("A20\n");
+                    stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				pH->tree[-currententry - 1] = i;
 			}
@@ -2637,8 +2749,10 @@ namespace jpgd {
 		m_max_blocks_per_row = m_max_mcus_per_row * m_max_blocks_per_mcu;
 
 		// Should never happen
-		if (m_max_blocks_per_row > JPGD_MAX_BLOCKS_PER_ROW)
-			stop_decoding(JPGD_DECODE_ERROR);
+		if (m_max_blocks_per_row > JPGD_MAX_BLOCKS_PER_ROW){
+            printf("A19\n");
+            stop_decoding(JPGD_DECODE_ERROR);
+        }
 
 		// Allocate the coefficient buffer, enough for one MCU
 		m_pMCU_coefficients = (jpgd_block_coeff_t *)alloc_aligned(m_max_blocks_per_mcu * 64 * sizeof(jpgd_block_coeff_t));
@@ -2675,8 +2789,10 @@ namespace jpgd {
 
 	inline jpgd_block_coeff_t* jpeg_decoder::coeff_buf_getp(coeff_buf* cb, int block_x, int block_y)
 	{
-		if ((block_x >= cb->block_num_x) || (block_y >= cb->block_num_y))
-			stop_decoding(JPGD_DECODE_ERROR);
+		if ((block_x >= cb->block_num_x) || (block_y >= cb->block_num_y)){
+            printf("A17\n");
+            stop_decoding(JPGD_DECODE_ERROR);
+        }
 
 		return (jpgd_block_coeff_t*)(cb->pData + block_x * cb->block_size + block_y * (cb->block_size * cb->block_num_x));
 	}
@@ -2690,8 +2806,10 @@ namespace jpgd {
 
 		if ((s = pD->huff_decode(pD->m_pHuff_tabs[pD->m_comp_dc_tab[component_id]])) != 0)
 		{
-			if (s >= 16)
-				pD->stop_decoding(JPGD_DECODE_ERROR);
+			if (s >= 16){
+                printf("A16\n");
+                pD->stop_decoding(JPGD_DECODE_ERROR);
+            }
 
 			r = pD->get_bits_no_markers(s);
 			s = JPGD_HUFF_EXTEND(r, s);
@@ -2727,8 +2845,10 @@ namespace jpgd {
 		for (k = pD->m_spectral_start; k <= pD->m_spectral_end; k++)
 		{
 			unsigned int idx = pD->m_comp_ac_tab[component_id];
-			if (idx >= JPGD_MAX_HUFF_TABLES)
-				pD->stop_decoding(JPGD_DECODE_ERROR);
+			if (idx >= JPGD_MAX_HUFF_TABLES){
+                printf("A15\n");
+                pD->stop_decoding(JPGD_DECODE_ERROR);
+            }
 
 			s = pD->huff_decode(pD->m_pHuff_tabs[idx]);
 
@@ -2737,8 +2857,10 @@ namespace jpgd {
 
 			if (s)
 			{
-				if ((k += r) > 63)
-					pD->stop_decoding(JPGD_DECODE_ERROR);
+				if ((k += r) > 63){
+                    printf("A14\n");
+                    pD->stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				r = pD->get_bits_no_markers(s);
 				s = JPGD_HUFF_EXTEND(r, s);
@@ -2749,8 +2871,10 @@ namespace jpgd {
 			{
 				if (r == 15)
 				{
-					if ((k += 15) > 63)
-						pD->stop_decoding(JPGD_DECODE_ERROR);
+					if ((k += 15) > 63){
+                        printf("A13\n");
+                        pD->stop_decoding(JPGD_DECODE_ERROR);
+                    }
 				}
 				else
 				{
@@ -2777,8 +2901,10 @@ namespace jpgd {
 		int m1 = static_cast<int>((UINT32_MAX << pD->m_successive_low));
 
 		jpgd_block_coeff_t* p = pD->coeff_buf_getp(pD->m_ac_coeffs[component_id], block_x, block_y);
-		if (pD->m_spectral_end > 63)
-			pD->stop_decoding(JPGD_DECODE_ERROR);
+		if (pD->m_spectral_end > 63){
+            printf("A12\n");
+            pD->stop_decoding(JPGD_DECODE_ERROR);
+        }
 
 		k = pD->m_spectral_start;
 
@@ -2787,8 +2913,10 @@ namespace jpgd {
 			for (; k <= pD->m_spectral_end; k++)
 			{
 				unsigned int idx = pD->m_comp_ac_tab[component_id];
-				if (idx >= JPGD_MAX_HUFF_TABLES)
-					pD->stop_decoding(JPGD_DECODE_ERROR);
+				if (idx >= JPGD_MAX_HUFF_TABLES){
+                    printf("A11\n");
+                    pD->stop_decoding(JPGD_DECODE_ERROR);
+                }
 
 				s = pD->huff_decode(pD->m_pHuff_tabs[idx]);
 
@@ -2797,8 +2925,10 @@ namespace jpgd {
 
 				if (s)
 				{
-					if (s != 1)
-						pD->stop_decoding(JPGD_DECODE_ERROR);
+					if (s != 1){
+                        printf("A10\n");
+                        pD->stop_decoding(JPGD_DECODE_ERROR);
+                    }
 
 					if (pD->get_bits_no_markers(1))
 						s = p1;
@@ -3012,8 +3142,10 @@ namespace jpgd {
 		for (i = 0; i < m_comps_in_frame; i++)
 			m_comp_list[i] = i;
 
-		if (!calc_mcu_block_order())
-			stop_decoding(JPGD_DECODE_ERROR);
+		if (!calc_mcu_block_order()){
+            printf("A9\n");
+            stop_decoding(JPGD_DECODE_ERROR);
+        }
 	}
 
 	void jpeg_decoder::init_sequential()
@@ -3203,6 +3335,7 @@ namespace jpgd {
 			uint scan_line_len;
 			if (decoder.decode((const void**)&pScan_line, &scan_line_len) != JPGD_SUCCESS)
 			{
+                printf("hiii\n");
 				jpgd_free(pImage_data);
 				return nullptr;
 			}

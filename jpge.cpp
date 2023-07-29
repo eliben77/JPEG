@@ -722,7 +722,7 @@ namespace jpge {
 		}
 
 		nbits = 0;
-		while (temp1)
+		while (temp1) // count bits size
 		{
 			nbits++; temp1 >>= 1;
 		}
