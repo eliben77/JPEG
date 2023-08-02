@@ -817,6 +817,8 @@ namespace jpge {
                 while (temp1 >>= 1)
                     nbits++;
                 j = (run_len << 4) + nbits;
+                if (j>=16)
+                    printf("j:%d\n",j);
                 load_bitBuffer(codes[1][j], code_sizes[1][j],buffer);
                 load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);
                 run_len = 0;
@@ -837,21 +839,22 @@ namespace jpge {
         return nullptr;
     }
     void jpeg_encoder::moveBitsFromBuffer(BitBuffer* bitBuffer){
-        const uint word_size = 32;  // Word size in bits
-        const uint remainder_size = bitBuffer->get_sum_bits_in() % 32;
+        printf("size_buff:%d\n",bitBuffer->get_sum_bits_in());
+        const uint word_size = 8;  // Word size in bits
+        const uint remainder_size = bitBuffer->get_sum_bits_in() % 8;
         // Process complete words
         uint c = 0;
         while (bitBuffer->hasBits(word_size))
         {
             c++;
-            uint32_t word = bitBuffer->getBits(word_size);
+            uint8_t word = bitBuffer->getBits(word_size);
             put_bits(word, word_size);
         }
         // Process remaining bits
         if (remainder_size > 0)
         {
             c=remainder_size;
-            uint32_t remainder = bitBuffer->getBits((int)remainder_size);
+            uint8_t remainder = bitBuffer->getBits((int)remainder_size);
             put_bits(remainder, remainder_size);
         }
     }

@@ -258,6 +258,7 @@ namespace jpgd
 		int m_max_mcus_per_col;
 		uint m_last_dc_val[JPGD_MAX_COMPONENTS];
 		jpgd_block_coeff_t* m_pMCU_coefficients;
+        jpgd_block_coeff_t** m_pMCU_coeff_back;
 		int m_mcu_block_max_zag[JPGD_MAX_BLOCKS_PER_MCU];
 		uint8* m_pSample_buf;
 		uint8* m_pSample_buf_prev;

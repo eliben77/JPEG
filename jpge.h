@@ -18,28 +18,30 @@ namespace jpge
 
     class BitBuffer {
     private:
-        std::vector<uint> m_buffer; // The buffer to hold the bits
-        uint sum_bits_in;           // Number of bits currently in the buffer
+        std::vector<uint8_t> m_buffer; // The buffer to hold the bits (8-bit words)
+        uint sum_bits_in;              // Number of bits currently in the buffer
 
     public:
         BitBuffer() : sum_bits_in(0) {}
-        uint get_sum_bits_in(){
+
+        uint get_sum_bits_in() {
             return this->sum_bits_in;
         }
+
         // Function to add bits to the buffer
         void addBits(uint bits, uint num_bits) {
-            uint current_index = sum_bits_in / 32;
-            uint bit_offset = sum_bits_in % 32;
+            uint current_index = sum_bits_in / 8; // Each index represents an 8-bit word (byte)
+            uint bit_offset = sum_bits_in % 8;    // Bit offset within the current 8-bit word
 
-            if (bit_offset + num_bits > 32) {
-                uint32 remaining_bits = num_bits - (32 - bit_offset);
+            if (bit_offset + num_bits > 8) {
+                uint remaining_bits = num_bits - (8 - bit_offset);
 
                 m_buffer.resize(current_index + 2); // Increase the buffer size if necessary
                 m_buffer[current_index] |= (bits >> remaining_bits);
-                m_buffer[current_index + 1] = (bits << (32 - remaining_bits));
+                m_buffer[current_index + 1] = (bits << (8 - remaining_bits));
             } else {
                 m_buffer.resize(current_index + 1); // Increase the buffer size if necessary
-                m_buffer[current_index] |= (bits << (32 - bit_offset - num_bits));
+                m_buffer[current_index] |= (bits << (8 - bit_offset - num_bits));
             }
 
             sum_bits_in += num_bits;
@@ -51,18 +53,18 @@ namespace jpge
         }
 
         // Function to retrieve n bits from the buffer
-        uint32 getBits(int num_bits) {
-            uint32 result = 0;
+        uint getBits(int num_bits) {
+            uint result = 0;
 
-            uint current_index = sum_bits_in / 32;
-            uint bit_offset = sum_bits_in % 32;
+            uint current_index = sum_bits_in / 8;
+            uint bit_offset = sum_bits_in % 8;
 
-            if (bit_offset + num_bits > 32) {
-                uint32 bits1 = m_buffer[current_index] >> (32 - bit_offset);
-                uint32 bits2 = m_buffer[current_index + 1] << (bit_offset + num_bits - 32);
+            if (bit_offset + num_bits > 8) {
+                uint bits1 = m_buffer[current_index] >> bit_offset;
+                uint bits2 = m_buffer[current_index + 1] << (8 - bit_offset);
                 result = (bits1 | bits2);
             } else {
-                result = (m_buffer[current_index] >> (32 - bit_offset - num_bits));
+                result = (m_buffer[current_index] >> (8 - bit_offset - num_bits));
             }
 
             sum_bits_in -= num_bits;

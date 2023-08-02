@@ -593,7 +593,7 @@ namespace jpgd {
 		}
 		else
 		{
-            int sym = symbol;
+
 			if (symbol & 0x8000)
 			{
                 //1000
@@ -618,8 +618,8 @@ namespace jpgd {
 			}
 
 			symbol &= 0xFF;
-            if (symbol == 0)
-                printf("symbol:%d, f_symbol:%d\n",symbol,sym);
+//            if (symbol == 0)
+//                printf("symbol:%d, f_symbol:%d\n",symbol,sym);
 		}
 
 		return symbol;
@@ -1324,6 +1324,7 @@ namespace jpgd {
 
 		memset(m_last_dc_val, 0, sizeof(m_last_dc_val));
 		m_pMCU_coefficients = nullptr;
+        m_pMCU_coeff_back = nullptr;
 		m_pSample_buf = nullptr;
 		m_pSample_buf_prev = nullptr;
 		m_sample_buf_prev_valid = false;
@@ -1431,7 +1432,6 @@ namespace jpgd {
 
 		for (mcu_row = 0; mcu_row < m_mcus_per_row; mcu_row++)
 		{
-            printf("m_mcus_per_row:%d\n",m_mcus_per_row);
 			int block_x_mcu_ofs = 0, block_y_mcu_ofs = 0;
 
 			for (mcu_block = 0; mcu_block < m_blocks_per_mcu; mcu_block++)
@@ -1544,17 +1544,36 @@ namespace jpgd {
 	}
 
 	static inline int dequantize_ac(int c, int q) { c *= q; return c; }
+    static int num_row = -1;
 
 	// Decodes and dequantizes the next row of coefficients.
-	void jpeg_decoder::decode_next_row()
-	{
+	void jpeg_decoder::decode_next_row(){
+
+        bool back = (++num_row % 2 != 0);
+        printf("back:%d\n",back);
 		int row_block = 0;
+        uint last_dc_prev_row[JPGD_MAX_COMPONENTS];
+        int* dc_coeff;
+        int idx = 0;
+        if (back){
+            printf("f1\n");
+            m_pMCU_coeff_back = (jpgd_block_coeff_t **)alloc_aligned(m_blocks_per_mcu * sizeof(jpgd_block_coeff_t*));
+            dc_coeff = (int*)alloc_aligned(m_blocks_per_mcu * m_mcus_per_row * sizeof(int));
+            //deep copy of last dc (right end)
+            for (int i = 0; i < JPGD_MAX_COMPONENTS; ++i) {
+                last_dc_prev_row[i] = m_last_dc_val[i];
+            }
+            printf("f2\n");
+        }
 		for (int mcu_row = 0; mcu_row < m_mcus_per_row; mcu_row++)
 		{
 			if ((m_restart_interval) && (m_restarts_left == 0))
 				process_restart();
-
-			jpgd_block_coeff_t* p = m_pMCU_coefficients;
+            jpgd_block_coeff_t* p;
+            if (back)
+                p = (jpgd_block_coeff_t *)alloc_aligned(m_blocks_per_mcu * 64 * sizeof(jpgd_block_coeff_t));
+            else
+			    p = m_pMCU_coefficients;
 			for (int mcu_block = 0; mcu_block < m_blocks_per_mcu; mcu_block++, p += 64)
 			{
 				int component_id = m_mcu_org[mcu_block];
@@ -1573,7 +1592,8 @@ namespace jpgd {
                 }
 
 				s = JPGD_HUFF_EXTEND(r, s);
-
+                if (back)
+                    dc_coeff[idx++] = s;
 				m_last_dc_val[component_id] = (s += m_last_dc_val[component_id]);
 
 				p[0] = static_cast<jpgd_block_coeff_t>(s * q[0]);
@@ -1588,22 +1608,21 @@ namespace jpgd {
 					int extra_bits;
                     char buffer[33];
 					s = huff_decode(pH, extra_bits);
-                    itoa(s, buffer, 2);
-                    printf("s:%s\n",buffer);
+
+//                    printf("s:%s\n",buffer);
+                    int l = s;
 					r = s >> 4;//4 left bits
 					s &= 15; //4 right bits
 
-					if (s)
-					{
-						if (r)
-						{
+					if (s){
+						if (r){
 							if ((k + r) > 63){
-                                printf("A31\n");
+                                itoa(r, buffer, 2);
+                                printf("A31,k:%d,r:%s,",k,buffer);
                                 stop_decoding(JPGD_DECODE_ERROR);
                             }
 
-							if (k < prev_num_set)
-							{
+							if (k < prev_num_set){
 								int n = JPGD_MIN(r, prev_num_set - k);
 								int kt = k;
 								while (n--)
@@ -1622,17 +1641,14 @@ namespace jpgd {
 
 						p[g_ZAG[k]] = static_cast<jpgd_block_coeff_t>(dequantize_ac(s, q[k])); //s * q[k];
 					}
-					else
-					{
-						if (r == 15)
-						{
+					else{
+						if (r == 15){
 							if ((k + 16) > 64){
                                 printf("A29\n");
                                 stop_decoding(JPGD_DECODE_ERROR);
                             }
 
-							if (k < prev_num_set)
-							{
+							if (k < prev_num_set){
 								int n = JPGD_MIN(16, prev_num_set - k);
 								int kt = k;
 								while (n--)
@@ -1653,14 +1669,12 @@ namespace jpgd {
                             }
 						}
 						else{
-                            printf("r:%d,s:%d.\tend block %d!\n",r,s,mcu_row);
                             break;
                         }
 					}
 				}
 
-				if (k < prev_num_set)
-				{
+				if (k < prev_num_set){
 					int kt = k;
 					while (kt < prev_num_set)
 						p[g_ZAG[kt++]] = 0;
@@ -1670,11 +1684,44 @@ namespace jpgd {
 
 				row_block++;
 			}
-
-			transform_mcu(mcu_row);
-
+            if (back)
+                m_pMCU_coeff_back[mcu_row] = p;
+            else
+			    transform_mcu(mcu_row);
 			m_restarts_left--;
 		}
+        if (back){
+            printf("f3\n");
+            //init last_dc from prev row
+            for (int i = 0; i < JPGD_MAX_COMPONENTS; ++i) {
+                m_last_dc_val[i] = last_dc_prev_row[i];
+            }
+            printf("f4\n");
+            for (int mcu_row = m_mcus_per_row - 1; mcu_row >= 0 ; --mcu_row) {
+                jpgd_block_coeff_t* p = m_pMCU_coeff_back[mcu_row];
+                for (int mcu_block = 0; mcu_block < m_blocks_per_mcu; ++mcu_block,p+=64) {
+                    int component_id = m_mcu_org[mcu_block];
+                    if (m_comp_quant[component_id] >= JPGD_MAX_QUANT_TABLES){
+                        printf("A45\n");
+                        stop_decoding(JPGD_DECODE_ERROR);
+                    }
+                    assert(idx > 0);
+                    int s = dc_coeff[idx--];
+                    jpgd_quant_t* q = m_quant[m_comp_quant[component_id]];
+                    m_last_dc_val[component_id] = (s += m_last_dc_val[component_id]);
+
+                    p[0] = static_cast<jpgd_block_coeff_t>(s * q[0]);
+                }
+            }
+            printf("f5\n");
+            for (int mcu_row = 0; mcu_row < m_mcus_per_row ; ++mcu_row) {
+                m_pMCU_coefficients = m_pMCU_coeff_back[mcu_row];
+                transform_mcu(mcu_row);
+                jpgd_free(m_pMCU_coeff_back[mcu_row]);
+            }
+            jpgd_free(m_pMCU_coeff_back);
+            printf("f6\n");
+        }
 	}
 
 	// YCbCr H1V1 (1x1:1:1, 3 m_blocks per MCU) to RGB
