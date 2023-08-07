@@ -45,7 +45,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-std=c++11 -fno-strict-aliasing -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 -Wall -Wextra -g -g -fno-strict-aliasing -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 -Wall -Wextra -D_DEBUG"
+					"fragment" : "-std=c++11 -fno-strict-aliasing -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 -Wall -Wextra -g -g -fno-strict-aliasing -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 -Wall -Wextra -D_DEBUG -fdiagnostics-color=always"
 				}
 			],
 			"language" : "CXX",
@@ -70,7 +70,7 @@
 		],
 		"prefix" : 
 		{
-			"path" : "C:/Program Files (x86)/jpeg2"
+			"path" : "C:/Program Files (x86)/jpge"
 		}
 	},
 	"link" : 

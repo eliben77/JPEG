@@ -6,6 +6,7 @@
 #include <stack>
 #include <vector>
 #include <iostream>
+#include "bitBuffer.cpp"
 using namespace std;
 namespace jpge
 {
@@ -15,62 +16,6 @@ namespace jpge
 	typedef unsigned short uint16;
 	typedef unsigned int   uint32;
 	typedef unsigned int   uint;
-
-    class BitBuffer {
-    private:
-        std::vector<uint8_t> m_buffer; // The buffer to hold the bits (8-bit words)
-        uint sum_bits_in;              // Number of bits currently in the buffer
-
-    public:
-        BitBuffer() : sum_bits_in(0) {}
-
-        uint get_sum_bits_in() {
-            return this->sum_bits_in;
-        }
-
-        // Function to add bits to the buffer
-        void addBits(uint bits, uint num_bits) {
-            uint current_index = sum_bits_in / 8; // Each index represents an 8-bit word (byte)
-            uint bit_offset = sum_bits_in % 8;    // Bit offset within the current 8-bit word
-
-            if (bit_offset + num_bits > 8) {
-                uint remaining_bits = num_bits - (8 - bit_offset);
-
-                m_buffer.resize(current_index + 2); // Increase the buffer size if necessary
-                m_buffer[current_index] |= (bits >> remaining_bits);
-                m_buffer[current_index + 1] = (bits << (8 - remaining_bits));
-            } else {
-                m_buffer.resize(current_index + 1); // Increase the buffer size if necessary
-                m_buffer[current_index] |= (bits << (8 - bit_offset - num_bits));
-            }
-
-            sum_bits_in += num_bits;
-        }
-
-        // Function to check if the buffer has at least n bits available
-        bool hasBits(uint num_bits) const {
-            return sum_bits_in >= num_bits;
-        }
-
-        // Function to retrieve n bits from the buffer
-        uint getBits(int num_bits) {
-            uint result = 0;
-
-            uint current_index = sum_bits_in / 8;
-            uint bit_offset = sum_bits_in % 8;
-
-            if (bit_offset + num_bits > 8) {
-                uint bits1 = m_buffer[current_index] >> bit_offset;
-                uint bits2 = m_buffer[current_index + 1] << (8 - bit_offset);
-                result = (bits1 | bits2);
-            } else {
-                result = (m_buffer[current_index] >> (8 - bit_offset - num_bits));
-            }
-
-            sum_bits_in -= num_bits;
-            return result;
-        }
-    };
 
 	// JPEG chroma subsampling factors. Y_ONLY (grayscale images) and H2V2 (color images) are the most common.
 	enum subsampling_t { Y_ONLY = 0, H1V1 = 1, H2V1 = 2, H2V2 = 3 };

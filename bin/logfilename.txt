@@ -640,3 +640,42 @@ Compressed file size: 3838, bits/pixel: 6.854
 Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
 Writing JPEG image to file: comp.jpg
 Compressed file size: 3849, bits/pixel: 6.873
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3842, bits/pixel: 6.861
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Compression time: 2.411ms, Decompression time: 1.252ms
+Error Max: 28.000000, Mean: 13.367634, Mean^2: 104.372545, RMSE: 10.216288, PSNR: 27.944941
+Success.
+Source file: "C:\Users\Public\jpeg2\orig.png", image resolution: 80x56, actual comps: 4
+Writing JPEG image to file: comp.jpg
+Compressed file size: 3847, bits/pixel: 6.870
+Compression time: 2.010ms, Decompression time: 0.983ms
+Error Max: 28.000000, Mean: 13.367634, Mean^2: 104.372545, RMSE: 10.216288, PSNR: 27.944941
+Success.

@@ -48,8 +48,8 @@ if (NOT MSVC)
    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${GCC_COMPILE_FLAGS} -D_DEBUG")
 endif()
 
-set(BASISU_SRC_LIST ${COMMON_SRC_LIST} 
-	jpgd.cpp
+set(BASISU_SRC_LIST ${COMMON_SRC_LIST}
+        jpgd.cpp
 	jpge.cpp
     tga2jpg.cpp
 	timer.cpp

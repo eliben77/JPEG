@@ -327,13 +327,13 @@ static int test_jpgd(const char* pSrc_filename, const char* pDst_filename, bool 
 
 	log_printf("Decompression time: %3.3fms\n", tm.get_elapsed_ms());
 
-	if (!stbi_write_tga(pDst_filename, width, height, req_comps, pImage_data))
+	if (!stbi_write_png(pDst_filename, width, height, req_comps, pImage_data,width*req_comps))
 	{
 		log_printf("Failed writing image to file \"%s\"!\n", pDst_filename);
 		free(pImage_data);
 		return EXIT_FAILURE;
 	}
-	log_printf("Wrote decompressed image to TGA file \"%s\"\n", pDst_filename);
+	log_printf("Wrote decompressed image to PNG file \"%s\"\n", pDst_filename);
 
 	log_printf("Success.\n");
 
@@ -582,7 +582,7 @@ int main(int arg_c, char* ppArgs[])
 	// Write uncompressed image.
 	if (output_filename[0])
 		stbi_write_tga(output_filename, uncomp_width, uncomp_height, uncomp_req_comps, pUncomp_image_data);
-
+    printf("output_filename:%s\n",output_filename);
 	if ((uncomp_width != width) || (uncomp_height != height))
 	{
 		log_printf("Loaded JPEG file has a different resolution than the original file!\n");

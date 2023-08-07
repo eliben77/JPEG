@@ -759,6 +759,9 @@ namespace jpge {
 			put_bits(codes[1][0], code_sizes[1][0]);
 	}
     void jpeg_encoder::load_bitBuffer(uint bits, uint len, BitBuffer* buffer){
+//        char buffer2 [33];
+//        itoa(bits, buffer2, 2);
+//        printf("bits:%d, binary:%s, len:%d\n",bits,buffer2,len);
         buffer->addBits(bits,len);
     }
     BitBuffer* jpeg_encoder::code_coefficients_pass_two_back(int component_num)
@@ -793,9 +796,10 @@ namespace jpge {
         {
             nbits++; temp1 >>= 1;
         }
-
         load_bitBuffer(codes[0][nbits], code_sizes[0][nbits],buffer);
-        if (nbits) load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);
+        if (nbits) {
+//            printf("%d __ %d temp2 is:%d\n", temp2 & ((1 << nbits) - 1),nbits,temp2);
+            load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);}
 
         for (run_len = 0, i = 1; i < 64; i++)
         {
@@ -817,8 +821,6 @@ namespace jpge {
                 while (temp1 >>= 1)
                     nbits++;
                 j = (run_len << 4) + nbits;
-                if (j>=16)
-                    printf("j:%d\n",j);
                 load_bitBuffer(codes[1][j], code_sizes[1][j],buffer);
                 load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);
                 run_len = 0;
@@ -839,22 +841,21 @@ namespace jpge {
         return nullptr;
     }
     void jpeg_encoder::moveBitsFromBuffer(BitBuffer* bitBuffer){
-        printf("size_buff:%d\n",bitBuffer->get_sum_bits_in());
-        const uint word_size = 8;  // Word size in bits
-        const uint remainder_size = bitBuffer->get_sum_bits_in() % 8;
+        const uint16 word_size = 16;  // Word size in bits
+        const uint16 remainder_size = bitBuffer->get_sum_bits_in() % 16;
         // Process complete words
-        uint c = 0;
+        uint16 c = 0;
         while (bitBuffer->hasBits(word_size))
         {
             c++;
-            uint8_t word = bitBuffer->getBits(word_size);
+            uint16 word = bitBuffer->getBits(word_size);
             put_bits(word, word_size);
         }
         // Process remaining bits
         if (remainder_size > 0)
         {
             c=remainder_size;
-            uint8_t remainder = bitBuffer->getBits((int)remainder_size);
+            uint16 remainder = bitBuffer->getBits((int)remainder_size);
             put_bits(remainder, remainder_size);
         }
     }
@@ -906,7 +907,7 @@ namespace jpge {
                 }
             }
             // replace direction
-            direction = !direction;
+//            direction = !direction;
 		}
 		else if ((m_comp_h_samp[0] == 2) && (m_comp_v_samp[0] == 1))
 		{
