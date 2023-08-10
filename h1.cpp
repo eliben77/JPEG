@@ -1550,7 +1550,6 @@ namespace jpgd {
 	void jpeg_decoder::decode_next_row(){
 
         bool back = (++num_row % 2 != 0);
-        printf("back:%d\n",back);
 		int row_block = 0;
         uint last_dc_prev_row[JPGD_MAX_COMPONENTS];
         int* dc_coeff;

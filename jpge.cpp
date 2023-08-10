@@ -798,8 +798,8 @@ namespace jpge {
         }
         load_bitBuffer(codes[0][nbits], code_sizes[0][nbits],buffer);
         if (nbits) {
-//            printf("%d __ %d temp2 is:%d\n", temp2 & ((1 << nbits) - 1),nbits,temp2);
-            load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);}
+            load_bitBuffer(temp2 & ((1 << nbits) - 1), nbits,buffer);
+        }
 
         for (run_len = 0, i = 1; i < 64; i++)
         {
@@ -882,8 +882,10 @@ namespace jpge {
 		{
             if (!direction){
                 for (int i = 0; i < m_mcus_per_row; i++){
-                    load_block_8_8(i, 0, 0);code_block(0);load_block_8_8(i, 0, 1);
-                    code_block(1); load_block_8_8(i, 0, 2); code_block(2);
+                    load_block_8_8(i, 0, 0);BitBuffer* b0= code_block_back(0);load_block_8_8(i, 0, 1);
+                    BitBuffer* b1= code_block_back(1); load_block_8_8(i, 0, 2); BitBuffer* b2= code_block_back(2);
+                    moveBitsFromBuffer(b0);moveBitsFromBuffer(b1);moveBitsFromBuffer(b2);
+                    delete b0; delete b1; delete b2;
                 }
             }
 			else{
@@ -907,7 +909,7 @@ namespace jpge {
                 }
             }
             // replace direction
-//            direction = !direction;
+            direction = !direction;
 		}
 		else if ((m_comp_h_samp[0] == 2) && (m_comp_v_samp[0] == 1))
 		{

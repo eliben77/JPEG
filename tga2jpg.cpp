@@ -48,7 +48,8 @@ static int print_usage()
 	printf("Test compression: jpge orig.png comp.jpg 90\n");
 	printf("Test decompression: jpge -d comp.jpg uncomp.tga\n");
 	printf("Exhaustively test compressor: jpge -x orig.png\n");
-
+//-h1v1 orig.png comp2.jpg 90
+//-d -h1v1 comp2.jpg uncomp.png
 	return EXIT_FAILURE;
 }
 
