@@ -17,6 +17,8 @@ public:
     uint16 get_sum_bits_in() const {
         return this->sum_bits_in;
     }
+    /// 1 1 1 1 1 1 1 1
+    /// 1 1 1 1 1 1 1 1
 
     // Function to add bits to the buffer
     void addBits(uint16 bits, uint16 num_bits) {

@@ -759,9 +759,6 @@ namespace jpge {
 			put_bits(codes[1][0], code_sizes[1][0]);
 	}
     void jpeg_encoder::load_bitBuffer(uint bits, uint len, BitBuffer* buffer){
-//        char buffer2 [33];
-//        itoa(bits, buffer2, 2);
-//        printf("bits:%d, binary:%s, len:%d\n",bits,buffer2,len);
         buffer->addBits(bits,len);
     }
     BitBuffer* jpeg_encoder::code_coefficients_pass_two_back(int component_num)
@@ -888,6 +885,7 @@ namespace jpge {
                     delete b0; delete b1; delete b2;
                 }
             }
+
 			else{
                 for (int i = m_mcus_per_row-1; i >=0 ; i--){
                     load_block_8_8(i, 0, 0);

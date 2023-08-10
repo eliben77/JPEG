@@ -1506,6 +1506,7 @@ namespace jpgd {
     }
 
     static inline int dequantize_ac(int c, int q) { c *= q; return c; }
+    // *****
     int num_row = -1;
     // Decodes and dequantizes the next row of coefficients.
     void jpeg_decoder::decode_next_row()
@@ -1620,7 +1621,6 @@ namespace jpgd {
 
                             k += 16 - 1; // - 1 because the loop counter is k
                             if (p[g_ZAG[k & 63]] != 0){
-                                printf("zag:%d, p[i]:%d\n",g_ZAG[k & 63],p[g_ZAG[k & 63]]);
                                 printf("A60\n");
                                 stop_decoding(JPGD_DECODE_ERROR);}
                         }

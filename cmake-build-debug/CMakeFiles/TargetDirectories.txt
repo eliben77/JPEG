@@ -1,7 +1,7 @@
-C:/Users/Public/jpeg2/cmake-build-debug/CMakeFiles/jpge.dir
-C:/Users/Public/jpeg2/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Public/jpeg2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-C:/Users/Public/jpeg2/cmake-build-debug/CMakeFiles/list_install_components.dir
-C:/Users/Public/jpeg2/cmake-build-debug/CMakeFiles/install.dir
-C:/Users/Public/jpeg2/cmake-build-debug/CMakeFiles/install/local.dir
-C:/Users/Public/jpeg2/cmake-build-debug/CMakeFiles/install/strip.dir
+C:/Users/USER/CLionProjects/JPEG/cmake-build-debug/CMakeFiles/jpge.dir
+C:/Users/USER/CLionProjects/JPEG/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/USER/CLionProjects/JPEG/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/USER/CLionProjects/JPEG/cmake-build-debug/CMakeFiles/list_install_components.dir
+C:/Users/USER/CLionProjects/JPEG/cmake-build-debug/CMakeFiles/install.dir
+C:/Users/USER/CLionProjects/JPEG/cmake-build-debug/CMakeFiles/install/local.dir
+C:/Users/USER/CLionProjects/JPEG/cmake-build-debug/CMakeFiles/install/strip.dir
